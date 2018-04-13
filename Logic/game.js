@@ -31,6 +31,7 @@ function create ()
     game.physics.arcade.enable(duck);
 
     cursors = game.input.keyboard.createCursorKeys();
+    console.log(duck.body.rotation);
 }
 
 function update ()
@@ -41,15 +42,12 @@ function update ()
 function processMovement(){
     duck.body.velocity.x = 0;
     duck.body.velocity.y = 0;
-
     if (cursors.left.isDown && !duck.body.touching.left)
     {
-        //  Move to the left
         duck.body.velocity.x = -150;
     }
     else if (cursors.right.isDown && !duck.body.touching.right)
     {
-        //  Move to the right
         duck.body.velocity.x = 150;
     }
     if (cursors.down.isDown && !duck.body.touching.down)
