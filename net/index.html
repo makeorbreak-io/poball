@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <title>P@oBall</title>
+  <meta charset="utf-8">
+  <script type="text/javascript" src="web_socket/swfobject.js"></script>
+  <script type="text/javascript" src="web_socket/web_socket.js"></script>
+
+</head>
+
+<script type="text/javascript">
+  WEB_SOCKET_SWF_LOCATION = "web_socket/WebSocketMain.swf";
+  var ws = new WebSocket("ws://localhost:8080/");
+
+  ws.onopen = function() {
+    console.log("Sending");
+    ws.send('{"player": "0", "X_diff": "-1", "Y_diff": "-5", "kick": "true"}');
+  };
+
+  ws.onmessage = function(e) {
+    alert(e.data);
+  };
+
+  ws.onclose = function() {
+    alert("closed");
+  };
+
+
+</script>
