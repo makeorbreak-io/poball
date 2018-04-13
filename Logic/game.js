@@ -42,20 +42,16 @@ function update ()
 function processMovement(){
     duck.body.velocity.x = 0;
     duck.body.velocity.y = 0;
-    if (cursors.left.isDown && !duck.body.touching.left)
-    {
+    if (cursors.left.isDown && !duck.body.touching.left) {
         duck.body.velocity.x = -150;
     }
-    else if (cursors.right.isDown && !duck.body.touching.right)
-    {
+    else if (cursors.right.isDown && !duck.body.touching.right) {
         duck.body.velocity.x = 150;
     }
-    if (cursors.down.isDown && !duck.body.touching.down)
-    {
+    if (cursors.down.isDown && !duck.body.touching.down) {
         duck.body.velocity.y = 150;
     }
-    else if (cursors.up.isDown && !duck.body.touching.up)
-    {
+    else if (cursors.up.isDown && !duck.body.touching.up) {
         duck.body.velocity.y = -150;
     }
 }
