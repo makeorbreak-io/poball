@@ -1,12 +1,23 @@
 #include <iostream>
-#include <string> 
+#include <string>
 #include "duck.h"
 
-Duck::Duck(b2World *world, float x, float y, std::string s) : Field_Object(world, x, y,s)
+Duck::Duck(b2World *world, float x, float y, std::string s) : Field_Object(world, x, y, s)
 {
-    this->resize(0.10,0.10);
+    b2FixtureDef fixture;
+    b2CircleShape shape;
+    shape.m_p.Set(0, 0);
+    shape.m_radius = this->sprite.getOrigin().x * 0.1 / (SCALE);
+    fixture.density = .08;
+    fixture.friction = .2f;
+    fixture.shape = &shape;
+    this->body = world->CreateBody(&this->bodyDef);
+    this->body->CreateFixture(&fixture);
+    this->body->SetUserData(this);
+    this->resize(0.10, 0.10);
 }
 
-std::string Duck::getID(){
+std::string Duck::getID()
+{
     return "duck";
 }

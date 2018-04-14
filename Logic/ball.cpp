@@ -3,8 +3,19 @@
 
 Ball::Ball(b2World *world, float x, float y, std::string s) : Field_Object(world, x, y, s)
 {
+    b2FixtureDef fixture;
+    b2CircleShape shape;
+    shape.m_p.Set(0, 0);
+    shape.m_radius = this->sprite.getOrigin().x * 0.05 / SCALE;
+    fixture.density = .08;
+    fixture.friction = .2f;
+    fixture.shape = &shape;
+    this->bodyDef.fixedRotation = false;
+    this->body = world->CreateBody(&this->bodyDef);
+    this->body->CreateFixture(&fixture);
+    this->body->SetUserData(this);
     this->touched = false;
-    this->resize(0.10, 0.10);
+    this->resize(0.05, 0.05);
 }
 
 std::string Ball::getID()
@@ -12,12 +23,14 @@ std::string Ball::getID()
     return "ball";
 }
 
-void Ball::setTouched(bool touch, float dX, float dY){
+void Ball::setTouched(bool touch, float dX, float dY)
+{
     this->touched = touch;
     this->dirX = dX;
     this->dirY = dY;
 }
 
-void Ball::shootBall(){
-    this->body->ApplyLinearImpulse(b2Vec2(100*this->dirX,100*this->dirY),this->body->GetPosition(),true);
+void Ball::shootBall()
+{
+    this->body->ApplyLinearImpulse(b2Vec2(100 * this->dirX, 100 * this->dirY), this->body->GetPosition(), true);
 }
