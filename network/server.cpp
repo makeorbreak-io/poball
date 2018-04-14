@@ -1,3 +1,4 @@
+#include "state.h"
 #include <string>
 #include <SFML/Network.hpp>
 #include <iostream>
@@ -19,11 +20,10 @@ private:
   sf::SocketSelector *select;
   sf::IpAddress addr;
   unsigned short port;
-  std::chrono::duration<double> prev_time;
+  std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1, 1000000000> > > prev_time;
 
 public:
   Server (int port, std::string addr) {
-    this->prev_time = 0;
     this->first_player = true;
     this->team_0 = true;
     this->player_id = 0;
@@ -64,10 +64,10 @@ public:
     while (this->first_player || !this->players.empty()) {
       this->select->wait();
       sf::TcpSocket *socket = this->getReadySocket();
-      socket.receive(packet);
-      std::istringstream stream = std::istringstream(std::string(packet.getData(), packet.getDataSize()));
+      socket->receive(packet);
+      std::istringstream stream = std::istringstream(std::string((const char*)packet.getData(), packet.getDataSize()));
 
-      this->sendState(),
+      this->sendState();
     }
   }
 
@@ -82,7 +82,7 @@ private:
   double timeToSend() {
     auto end = std::chrono::high_resolution_clock::now();
     auto diff = end - this->prev_time;
-    if (diff >= this->PERIOD) {
+    if (diff.count() >= this->PERIOD) {
       this->prev_time = end;
       return true;
     }
