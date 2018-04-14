@@ -1,3 +1,5 @@
+#include <iostream>
+#include <math.h>
 #include "field_object.h"
 
 Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
@@ -8,33 +10,38 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   this->sprite.setPosition(x, y);
   this->bodyDef.position = b2Vec2(x / SCALE, y / SCALE);
   this->bodyDef.type = b2_dynamicBody;
+  this->bodyDef.linearDamping = 5.0f;
+  //this->bodyDef.angularDamping = 5.0f;
+  b2FixtureDef fixture;
+  b2CircleShape shape;
+  shape.m_p.Set(0, 0);
+  shape.m_radius = this->sprite.getPosition().x / SCALE;
+  fixture.density = 5.f;
+  fixture.friction = 1.0f;
+  fixture.shape = &shape;
   this->body = world->CreateBody(&this->bodyDef);
+  this->body->CreateFixture(&fixture);
 }
 
 void Field_Object::move(float x, float y)
 {
-  this->sprite.move(x, y);
-  this->body->SetTransform(b2Vec2(x/SCALE, y/SCALE), 0);
+  this->body->ApplyLinearImpulse(b2Vec2(x,y),this->body->GetPosition(),true);
 }
 
 void Field_Object::resize(float x, float y)
 {
   this->sprite.scale(x, y);
-  b2CircleShape shape;
-  shape.m_p.Set(0, 0);
-  shape.m_radius = this->sprite.getPosition().x / SCALE;
-  b2FixtureDef fixture;
-  //fixture.density = 1.f;
-  //fixture.friction = 0.5f;
-  fixture.shape = &shape;
-  this->body->CreateFixture(&fixture);
 }
 
 void Field_Object::draw(sf::RenderWindow *window)
 {
+  this->sprite.setPosition(this->body->GetPosition().x*SCALE, this->body->GetPosition().y*SCALE);
+  std::cout << (this->body->GetAngle()) << std::endl;;
+  this->sprite.setRotation(this->body->GetAngle()* 180.0f/M_PI);
   window->draw(this->sprite);
 }
 
-void Field_Object::rotate(float angle){
-  this->sprite.setRotation(angle);
+void Field_Object::rotate(float angle){ 
+  std::cout << angle << std::endl;
+  this->body->SetAngularVelocity(angle*-0.5);
 }

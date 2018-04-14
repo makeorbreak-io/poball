@@ -15,25 +15,25 @@ class Game
         if (keyboard.isKeyPressed(sf::Keyboard::Left))
         {
             std::cout << "Left" << std::endl;
-            this->duck->rotate(-90.0);
+            this->duck->rotate(-10.0);
             this->duck->move(-5.0, 0);
         }
         else if (keyboard.isKeyPressed(sf::Keyboard::Right))
         {
             std::cout << "Right" << std::endl;
-            this->duck->rotate(90.0);
+            this->duck->rotate(10.0);
             this->duck->move(5.0, 0);
         }
         if (keyboard.isKeyPressed(sf::Keyboard::Up))
         {
             std::cout << "UP" << std::endl;
-            //this->duck->rotate(-90.0);
+            this->duck->rotate(-10.0);
             this->duck->move(0, -5.0);
         }
         else if (keyboard.isKeyPressed(sf::Keyboard::Down))
         {
             std::cout << "Down" << std::endl;
-            this->duck->rotate(180.0);
+            this->duck->rotate(10.0);
             this->duck->move(0, 5.0);
         }
     }
