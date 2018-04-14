@@ -1,5 +1,9 @@
+#ifndef TEAM_H
+#define TEAM_H
+
 #include <unordered_map>
 #include "duck.h"
+
 
 class Team{
     private:
@@ -12,3 +16,5 @@ class Team{
         void addPlayer(int id, Duck* player);
         void draw(sf::RenderWindow *window);
 };
+
+#endif

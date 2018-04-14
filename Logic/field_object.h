@@ -1,3 +1,6 @@
+#ifndef FIELD_OBJECT_H
+#define FIELD_OBJECT_H
+
 #include <SFML/Graphics.hpp>
 #include <Box2D/Box2D.h>
 
@@ -10,10 +13,13 @@ class Field_Object{
     sf::Sprite sprite;
     sf::Texture *t;
   public:
-    Field_Object(){};
     Field_Object(b2World *world,float x, float y , std::string s); 
     void move(float x, float y);
     void resize(float x, float y);
     void rotate(float angle);
     void draw(sf::RenderWindow *window);
+    virtual std::string getID() = 0;
+    b2Body* getBody();
 };
+
+#endif

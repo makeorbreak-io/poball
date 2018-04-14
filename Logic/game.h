@@ -1,4 +1,9 @@
+#ifndef GAME_H
+#define GAME_H
+
 #include "team.h"
+#include "ball.h"
+#include "colision_callback.h"
 #include <iostream>
 
 class Game
@@ -9,6 +14,8 @@ class Game
     bool finished;
     b2World *world;
     Duck* duck;
+    Ball* ball;
+    MyContactListener *contactListener;
     void processMovement()
     {
         sf::Keyboard keyboard;
@@ -28,9 +35,14 @@ class Game
         {
             this->duck->move(0, 5.0);
         }
+        if(keyboard.isKeyPressed(sf::Keyboard::X)){
+            this->ball->shootBall();
+        }
     }
 
   public:
     Game();
     void update();
 };
+
+#endif

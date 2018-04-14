@@ -22,11 +22,12 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   fixture.shape = &shape;
   this->body = world->CreateBody(&this->bodyDef);
   this->body->CreateFixture(&fixture);
+  this->body->SetUserData(this);
 }
 
 void Field_Object::move(float x, float y)
 {
-  this->body->ApplyLinearImpulse(b2Vec2(x,y),this->body->GetPosition(),true);
+  this->body->ApplyLinearImpulse(b2Vec2(x, y), this->body->GetPosition(), true);
 }
 
 void Field_Object::resize(float x, float y)
@@ -36,6 +37,11 @@ void Field_Object::resize(float x, float y)
 
 void Field_Object::draw(sf::RenderWindow *window)
 {
-  this->sprite.setPosition(this->body->GetPosition().x*SCALE, this->body->GetPosition().y*SCALE);
+  this->sprite.setPosition(this->body->GetPosition().x * SCALE, this->body->GetPosition().y * SCALE);
   window->draw(this->sprite);
+}
+
+b2Body *Field_Object::getBody()
+{
+  return this->body;
 }
