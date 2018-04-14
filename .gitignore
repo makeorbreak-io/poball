@@ -4,4 +4,4 @@
 *.o
 network/client
 network/server
-network/obj
+*/obj
