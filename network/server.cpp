@@ -3,11 +3,14 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+#include <chrono>
 
 typedef std::unordered_map<int, sf::TcpSocket*> playerDB;
 
 class Server {
 private:
+  GameState state;
+  const double PERIOD = 0.0033;
   bool first_player;
   playerDB players;
   bool team_0;
@@ -16,9 +19,11 @@ private:
   sf::SocketSelector *select;
   sf::IpAddress addr;
   unsigned short port;
+  std::chrono::duration<double> prev_time;
 
 public:
   Server (int port, std::string addr) {
+    this->prev_time = 0;
     this->first_player = true;
     this->team_0 = true;
     this->player_id = 0;
@@ -27,6 +32,7 @@ public:
     this->listener = new sf::TcpListener();
     this->addr = sf::IpAddress(addr);
     this->players = std::unordered_map<int, sf::TcpSocket*>(8);
+    this->state = GameState();
   }
 
   // <player_id> <player_team> <x_pos> <y_pos>
@@ -52,15 +58,37 @@ public:
   }
 
 
+  // Receives <message_type> <player_id> <player_x> <player_y> <ball_x?> <ball_y?>
   void startServer() {
+    sf::Packet packet;
     while (this->first_player || !this->players.empty()) {
       this->select->wait();
       sf::TcpSocket *socket = this->getReadySocket();
-      // update game state 
+      socket.receive(packet);
+      std::istringstream stream = std::istringstream(std::string(packet.getData(), packet.getDataSize()));
+
+      this->sendState(),
     }
   }
 
 private:
+  void sendState() {
+    if (this->timeToSend()) {
+      std::string state = this->state.toString();
+      this->sendToAll(state.c_str(), state.length());
+    }
+  }
+
+  double timeToSend() {
+    auto end = std::chrono::high_resolution_clock::now();
+    auto diff = end - this->prev_time;
+    if (diff >= this->PERIOD) {
+      this->prev_time = end;
+      return true;
+    }
+    return false;
+  }
+
   sf::TcpSocket *getReadySocket() {
     for (auto it = this->players.begin(); it != this->players.end(); it++) {
       if (this->select->isReady(*it->second)) {
@@ -81,6 +109,10 @@ private:
   }
 
   void updateInfos(sf::TcpSocket &client) {
+    if (this->player_id == 0) { //First player will be host
+      this->state.moveBall(150, 150);
+      this->state.updatePlayer(player_id, 25, 25);
+    }
     this->players[this->player_id] =  &client;
     this->player_id++;
     this->team_0 = !this->team_0;
