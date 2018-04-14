@@ -8,8 +8,11 @@ class Field_Object{
     b2Body *body;
     b2BodyDef bodyDef;
     sf::Sprite sprite;
+    sf::Texture *t;
   public:
-    Field_Object(b2World &world,float x, float y); 
+    Field_Object(){};
+    Field_Object(b2World *world,float x, float y , std::string s); 
     void move(float x, float y);
     void resize(float x, float y);
+    void draw(sf::RenderWindow *window);
 };

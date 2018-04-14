@@ -10,4 +10,5 @@ class Team{
         Team();
         Team(int ident);
         void addPlayer(int id, Duck player);
+        void draw(sf::RenderWindow *window);
 };
