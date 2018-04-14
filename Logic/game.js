@@ -14,7 +14,7 @@ function preload () {
 }
 
 function create () {
-  ws = new WebSocket("ws://localhost:8080/");
+  ws = new WebSocket("ws://172.29.4.45:8080/");
   ws.onmessage = function(msg) {
     console.log("GOT ' " + msg.data + "'");
     response = JSON.parse(msg.data);
