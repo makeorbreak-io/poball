@@ -14,5 +14,6 @@ class Field_Object{
     Field_Object(b2World *world,float x, float y , std::string s); 
     void move(float x, float y);
     void resize(float x, float y);
+    void rotate(float angle);
     void draw(sf::RenderWindow *window);
 };

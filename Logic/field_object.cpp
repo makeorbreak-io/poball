@@ -34,3 +34,7 @@ void Field_Object::draw(sf::RenderWindow *window)
 {
   window->draw(this->sprite);
 }
+
+void Field_Object::rotate(float angle){
+  this->sprite.setRotation(angle);
+}
