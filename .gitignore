@@ -1,3 +1,8 @@
 .idea/
 .vscode/
 *.xml
+*.o
+network/client
+network/server
+*/obj
+poball
