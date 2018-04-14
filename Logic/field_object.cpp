@@ -8,6 +8,7 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   this->t->loadFromFile(s);
   this->sprite.setTexture(*this->t);
   this->sprite.setPosition(x, y);
+  this->sprite.rotate(90);
   this->bodyDef.position = b2Vec2(x / SCALE, y / SCALE);
   this->bodyDef.type = b2_dynamicBody;
   this->bodyDef.linearDamping = 5.0f;
@@ -15,9 +16,9 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   b2FixtureDef fixture;
   b2CircleShape shape;
   shape.m_p.Set(0, 0);
-  shape.m_radius = this->sprite.getPosition().x / SCALE;
-  fixture.density = 5.f;
-  fixture.friction = 1.0f;
+  shape.m_radius = this->t->getSize().x / (SCALE * 20);
+  fixture.density = .08;
+  fixture.friction = .2f;
   fixture.shape = &shape;
   this->body = world->CreateBody(&this->bodyDef);
   this->body->CreateFixture(&fixture);
@@ -36,12 +37,5 @@ void Field_Object::resize(float x, float y)
 void Field_Object::draw(sf::RenderWindow *window)
 {
   this->sprite.setPosition(this->body->GetPosition().x*SCALE, this->body->GetPosition().y*SCALE);
-  std::cout << (this->body->GetAngle()) << std::endl;;
-  this->sprite.setRotation(this->body->GetAngle()* 180.0f/M_PI);
   window->draw(this->sprite);
-}
-
-void Field_Object::rotate(float angle){ 
-  std::cout << angle << std::endl;
-  this->body->SetAngularVelocity(angle*-0.5);
 }

@@ -8,8 +8,9 @@ Game::Game()
     b2Vec2 Gravity(0.0f, 0.0f);
     this->world = new b2World(Gravity);
     this->duck = new Duck(this->world,(float)0.0, (float)0.0, "assets/duck1.png");
-    duck->resize(0.10,0.10);
+    Duck * duck2 = new Duck(this->world,(float)400.0, (float)200.0, "assets/duck2.png");
     this->team1.addPlayer(1,this->duck);
+    this->team1.addPlayer(2,duck2);
 }
 
 void Game::update(){
