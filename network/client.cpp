@@ -11,7 +11,7 @@ std::pair<int, int> *Client::registerPlayer() {
   if (this->socket->connect(this->addr, this->port, sf::seconds(5)) == sf::Socket::Done) {
     std::cout << "Receibing\n";
     if (this->socket->receive(this->packet) == sf::Socket::Done) {
-
+      sf::UdpSocket udp;
       std::string msg = std::string((const char*)this->packet.getData(), this->packet.getDataSize());
       std::istringstream stream =std::istringstream(msg);
       unsigned int player_id, team;
@@ -19,7 +19,6 @@ std::pair<int, int> *Client::registerPlayer() {
       stream >> player_id >> team >> addr;
 
       this->setupConnection(addr, this->socket->getLocalPort());
-      this->packet.clear();
       return new std::pair<int, int>(player_id, team);
     }
   }
@@ -27,16 +26,21 @@ std::pair<int, int> *Client::registerPlayer() {
 }
 
 void Client::setupConnection(std::string addr, unsigned int port) {
-  this->socket->disconnect();
   sf::sleep(sf::seconds(2));
   sf::IpAddress local_addr = sf::IpAddress(addr);
   sf::TcpListener *listener = new sf::TcpListener();
   std::cout << "CENAS\n" << port;
-  listener->listen(port, local_addr);
+  listener->listen(sf::Socket::AnyPort, local_addr);
+  sf::Packet packet;
+  std::string data = std::to_string(listener->getLocalPort());
+  packet.append(data.c_str(), (std::size_t)data.length());
+  this->socket->send(packet);
+  this->socket->disconnect();
   std::cout << "CENAS2\n";
-  sf::TcpSocket new_socket;
-  if (listener->accept(new_socket) == sf::Socket::Done) {
-    this->socket = &new_socket;
+  sf::TcpSocket *new_socket = new sf::TcpSocket();
+  if (listener->accept(*new_socket) == sf::Socket::Done) {
+    std::cout << "Accepted!\n";
+    this->socket = new_socket;
   }
 }
 

@@ -31,7 +31,7 @@ void Server::startListening() {
       std::ostringstream reg_msg, new_msg;
       reg_msg << this->player_id << " " << this->team_0 << " " << addr << "\n";
       this->sendMsg(client, reg_msg.str().c_str(), reg_msg.str().length());
-      this->setupConnection(port, addr);
+      this->setupConnection(port, addr, client);
 
       new_msg << "NEW_PLAYER\n" << this->player_id << " "  << this->team_0 << " 123  321\n";
       this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
@@ -43,9 +43,13 @@ void Server::startListening() {
     }
   }
 
-void Server::setupConnection(unsigned int client_port, sf::IpAddress &client_addr) {
+void Server::setupConnection(unsigned int client_port, sf::IpAddress &client_addr, sf::TcpSocket *client) {
   sf::TcpSocket socket;
-  if (socket.connect(client_addr, client_port, sf::seconds(3)) == sf::Socket::Done) {
+  sf::Packet pack;
+  client->receive(pack);
+  std::string port = std::string((const char *)pack.getData(), pack.getDataSize());
+
+  if (socket.connect(client_addr, std::stoi(port), sf::seconds(3)) == sf::Socket::Done) {
     std::cout << "Opened new socket to client\n";
     this->updateInfos(socket);
   }
@@ -115,11 +119,13 @@ void Server::sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size) 
     std::cout << "Sending: '" << msg << "'\n";
     packet.append(msg, size);
     auto status = socket->send(packet);
-    if (status == sf::Socket::Done) {
-      std::cout << "Freaking done!\n";
-    }
-    else {
-      std::cout << "FUUUUCKKKKKK\n";
+    
+    switch (status) {
+      case sf::Socket::Done: std::cout << "Done\n"; break;
+      case sf::Socket::NotReady: std::cout << "NotReady\n"; break;
+      case sf::Socket::Partial: std::cout << "Partial\n"; break;
+      case sf::Socket::Disconnected: std::cout << "Disconnected\n"; break;
+      case sf::Socket::Error: std::cout << "Error\n"; break;
     }
 }
 

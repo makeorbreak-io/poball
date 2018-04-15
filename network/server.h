@@ -44,7 +44,7 @@ public:
   void startServer();
 
 private:
-  void setupConnection(unsigned int port, sf::IpAddress &addr);
+  void setupConnection(unsigned int port, sf::IpAddress &addr, sf::TcpSocket *client);
   void sendState();
   double timeToSend();
   sf::TcpSocket *getReadySocket();
