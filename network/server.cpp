@@ -1,5 +1,9 @@
 #include "server.h"
 
+int main() {
+  Server *server = new Server(8000, "127.0.0.1");
+  server->startListening();
+}
 
 Server::Server (int port, std::string addr) {
     this->first_player = true;
@@ -96,7 +100,7 @@ void Server::updateInfos(sf::TcpSocket &client) {
   this->select->add(client);
 }
 
-void Server::sendToAll(const char *msg, const unsigned int size) {
+void Server::sendToAll(const char *msg, unsigned int size) {
   auto it = this->players.begin();
   for (auto it = this->players.begin(); it != this->players.end(); it++) {
     std::cout << "IS NULL? " << (it->second == NULL) << "\n";
@@ -115,4 +119,43 @@ void Server::sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size) 
     else {
       std::cout << "FUUUUCKKKKKK\n";
     }
+}
+
+
+
+
+GameState::GameState() {
+  this->mutex = new std::mutex();
+  this->players = std::unordered_map<int, int*>();
+}
+
+void GameState::updatePlayer(int player_id, unsigned int x, unsigned int y) {
+  int coordinates[100];
+  coordinates[0] = x;   coordinates[1] = y;
+  this->mutex->lock();
+  this->players[player_id] = coordinates;
+  this->mutex->unlock();
+}
+
+void GameState::moveBall(unsigned int x, unsigned int y) {
+  this->mutex->lock();
+  this->ball[0] = x;  this->ball[1] = y;
+  this->mutex->unlock();
+}
+
+// Returns the game state in the following form, the first line is theball coordinates
+// STATE \n
+// <ball_x_coordinate> <ball_y_coordinate> \n
+// <player1> <x> <y> \n
+// <player2> <x> <y> \n
+std::string GameState::toString() {
+  std::ostringstream stream;
+  stream << "STATE\n";
+  this->mutex->lock();
+  stream << ball[0] << " " << ball[1] << "\n";
+  for (auto it = this->players.begin(); it != this->players.end();it++) {
+    stream << it->first << " " << it->second[0] << " " << it->second[1]<< "\n";
+  }
+  this->mutex->unlock();
+  return stream.str();
 }

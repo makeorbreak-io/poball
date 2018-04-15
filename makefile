@@ -6,11 +6,11 @@ LOGIC_OBJS=$(wildcard Logic/obj/*.o)
 NET_OBJS=$(wildcard network/obj/*.o)
 
 poball: server logic
-	$(CC) $(LIBS) -o poball main.cpp $(LOGIC_OBJS) $(NET_OBJS)
+	$(CC) $(LIBS) -o poball main.cpp $(LOGIC_OBJS) network/obj/client.o
 
 server: $(SUBDIRS)
 	$(MAKE) -C network
-	$(CC) $(LIBS) -o server server.cpp network/obj/server.o network/obj/state.o
+	$(CC) $(LIBS) -o server network/server.cpp
 
 
 logic: $(SUBDIRS)
@@ -19,7 +19,7 @@ logic: $(SUBDIRS)
 clean:
 	$(MAKE) -C Logic $(MAKECMDGOALS)
 	$(MAKE) -C network $(MAKECMDGOALS)
-	rm poball
 	rm server
+	rm poball
 
 .PHONY: all $(SUBDIRS)
