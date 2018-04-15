@@ -15,6 +15,7 @@ Client::Client(int port, std::string addr) {
 //Returns <player_id, player_team>
 std::pair<int, int> *Client::registerPlayer() {
     if (this->socket->connect(this->addr, this->port, sf::seconds(5)) == sf::Socket::Done) {
+      std::cout << "Connected to server!\n";
       sf::Packet packet;
       if (this->socket->receive(packet) == sf::Socket::Done) {
         std::string msg = std::string((const char*)packet.getData(), packet.getDataSize());
