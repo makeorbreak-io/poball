@@ -23,6 +23,7 @@ class Field_Object{
     b2Body* getBody();
     sf::Sprite getSprite();
     void resetPos();
+    void setBody(b2Body * body);
 };
 
 #endif

@@ -3,15 +3,15 @@
 
 
 #include "field_object.h"
-#include "team.h"
 #include "game.h"
+#include "duck.h"
 
 class Goalside : public Field_Object{
     private:
-    	Team *team;
     	bool reset = false;
+        Duck * duck;
     public:
-        Goalside(b2World *world, float x, float y, std::string filename, Team *team_p);
+        Goalside(b2World *world, float x, float y, std::string filename, Duck * duck);
         std::string getID();
         void scoreGoal();
         bool getReset();

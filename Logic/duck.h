@@ -6,10 +6,17 @@
 
 class Duck : public Field_Object{
     private:
-        int id;
+          int goalsScored;
+          int team;
     public:
-        Duck(b2World *world, float x, float y, std::string filename);
+        int id;
+        Duck(b2World *world, float x, float y, std::string filename, int t);
         std::string getID();
+        void resetGoal();
+        void scoreGoal();
+        int getGoalScored();
+        int getId();
+        int getTeam();
 };
 
 #endif

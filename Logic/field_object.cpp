@@ -45,3 +45,7 @@ void Field_Object::resetPos(){
   this->body->SetTransform(this->original_pos, body->GetAngle());
   //this->sprite.setPosition(this->original_pos_x, this->original_pos_x);
 }
+
+void Field_Object::setBody(b2Body * b){
+    this->body = b;
+}

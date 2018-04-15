@@ -1,22 +1,21 @@
 #ifndef GAME_H
 #define GAME_H
 
-#include "team.h"
 #include "ball.h"
 #include "barrier.h"
 #include "goalside.h"
 #include "colision_callback.h"
+#include "duck.h"
 #include <iostream>
 
 class MyContactListener;
 class Goalside;
 class Game {
   private:
-    Team team1;
-    Team team2;
     bool finished;
     b2World *world;
     Duck* duck;
+    Duck* duck2;
     Ball* ball;
     MyContactListener *contactListener;
     sf::Sprite background;
@@ -32,7 +31,7 @@ class Game {
     sf::Font font;
     
 
-    Team *checkWinning();
+    Duck *checkWinning();
     void resetGoal();
     void processMovement();
     void handleReset();
@@ -41,8 +40,8 @@ class Game {
   public:
     Game();
     void update();
-
-
+    Ball * getBall();
+    Duck * getDuck();
 };
 
 #endif

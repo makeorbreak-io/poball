@@ -1,7 +1,7 @@
 #include "goalside.h"
 
-Goalside::Goalside(b2World *world, float x, float y, std::string filename, Team *team_p) : Field_Object(world, x, y, filename){
-    this->team = team_p;
+Goalside::Goalside(b2World *world, float x, float y, std::string filename, Duck*d) : Field_Object(world, x, y, filename){
+    this->duck = d;
     b2FixtureDef fixture;
     b2PolygonShape shape;
     shape.SetAsBox(this->sprite.getOrigin().x  * 0.2/ SCALE, this->sprite.getOrigin().y  * 0.2 / SCALE);
@@ -21,7 +21,7 @@ std::string Goalside::getID(){
 }
 
 void Goalside::scoreGoal(){
-    this->team->scoreGoal();
+    this->duck->scoreGoal();
     this->reset = true;
 }
 
