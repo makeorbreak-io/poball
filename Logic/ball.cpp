@@ -9,7 +9,11 @@ Ball::Ball(b2World *world, float x, float y, std::string s) : Field_Object(world
     shape.m_radius = this->sprite.getOrigin().x * 0.05 / SCALE;
     fixture.density = .08;
     fixture.friction = .2f;
+    fixture.restitution = 0.7f;
     fixture.shape = &shape;
+    this->bodyDef.type = b2_dynamicBody;
+    this->bodyDef.linearDamping = 5.0f;
+    this->bodyDef.angularDamping = .4f;
     this->bodyDef.fixedRotation = false;
     this->body = world->CreateBody(&this->bodyDef);
     this->body->CreateFixture(&fixture);

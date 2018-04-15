@@ -11,6 +11,9 @@ Duck::Duck(b2World *world, float x, float y, std::string s) : Field_Object(world
     fixture.density = .08;
     fixture.friction = .2f;
     fixture.shape = &shape;
+    this->bodyDef.type = b2_dynamicBody;
+    this->bodyDef.linearDamping = 5.0f;
+    this->bodyDef.angularDamping = .4f;
     this->body = world->CreateBody(&this->bodyDef);
     this->body->CreateFixture(&fixture);
     this->body->SetUserData(this);

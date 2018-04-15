@@ -11,9 +11,6 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   this->sprite.setPosition(x+this->sprite.getOrigin().x, y+this->sprite.getOrigin().y);
   this->sprite.rotate(90);
   this->bodyDef.position = b2Vec2(x / SCALE, y / SCALE);
-  this->bodyDef.type = b2_dynamicBody;
-  this->bodyDef.linearDamping = 5.0f;
-  this->bodyDef.angularDamping = .4f;
 }
 
 void Field_Object::move(float x, float y)
@@ -36,4 +33,8 @@ void Field_Object::draw(sf::RenderWindow *window)
 b2Body *Field_Object::getBody()
 {
   return this->body;
+}
+
+sf::Sprite Field_Object::getSprite(){
+  return this->sprite;
 }

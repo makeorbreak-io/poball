@@ -20,6 +20,7 @@ class Field_Object{
     void draw(sf::RenderWindow *window);
     virtual std::string getID() = 0;
     b2Body* getBody();
+    sf::Sprite getSprite();
 };
 
 #endif

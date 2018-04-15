@@ -3,6 +3,8 @@
 
 #include "team.h"
 #include "ball.h"
+#include "barrier.h"
+#include "goalside.h"
 #include "colision_callback.h"
 #include <iostream>
 
@@ -16,6 +18,14 @@ class Game
     Duck* duck;
     Ball* ball;
     MyContactListener *contactListener;
+    sf::Sprite background;
+    Goalside* goalside;
+    Goalside* goalside2;
+    Barrier* barriertop;
+    Barrier* barrierbottom;
+    Barrier* barrierleft;
+    Barrier* barrierright;
+    float sizeX,sizeY;
     void processMovement()
     {
         sf::Keyboard keyboard;
