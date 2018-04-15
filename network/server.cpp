@@ -24,20 +24,32 @@ void Server::startListening() {
 
     while (true) {
     if (this->listener->accept(*client) == sf::Socket::Done) {
-      std::cout << "New conn from " << client->getRemoteAddress() << ":" << client->getRemotePort() << std::endl;
+      unsigned int port = client->getRemotePort();
+      sf::IpAddress addr = client->getRemoteAddress();
+      std::cout << "New conn from " << addr << ":" << port << std::endl;
 
       std::ostringstream reg_msg, new_msg;
-      reg_msg << this->player_id << " " << this->team_0 << "\n";
+      reg_msg << this->player_id << " " << this->team_0 << " " << addr << "\n";
       this->sendMsg(client, reg_msg.str().c_str(), reg_msg.str().length());
+      this->setupConnection(port, addr);
 
       new_msg << "NEW_PLAYER\n" << this->player_id << " "  << this->team_0 << " 123  321\n";
-      this->updateInfos(client);
       this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
+      sf::sleep(sf::seconds(3));
+      this->sendMsg(client, "TESTE1", 7);
     }
 
 
     }
   }
+
+void Server::setupConnection(unsigned int client_port, sf::IpAddress &client_addr) {
+  sf::TcpSocket socket;
+  if (socket.connect(client_addr, client_port, sf::seconds(3)) == sf::Socket::Done) {
+    std::cout << "Opened new socket to client\n";
+    this->updateInfos(socket);
+  }
+}
 
 
 // Receives <message_type> <player_id> <player_x> <player_y> <ball_x?><ball_y?>
@@ -79,25 +91,15 @@ sf::TcpSocket *Server::getReadySocket() {
   return NULL;
 }
 
-void Server::registerClient(sf::TcpSocket &client) {
-  std::cout << "New conn from " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
-  std::ostringstream reg_msg, new_msg;
-  reg_msg << this->player_id << " " << this->team_0;
-  new_msg << this->player_id << " "  << this->team_0 << " 500 500";
-  this->sendMsg(&client, reg_msg.str().c_str(), new_msg.str().length());
-  this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
-  this->updateInfos(&client);
-}
-
-void Server::updateInfos(sf::TcpSocket *client) {
+void Server::updateInfos(sf::TcpSocket &client) {
   if (this->player_id == 0) { //First player will be host
     this->state.moveBall(150, 150);
   }
   this->state.updatePlayer(player_id, 25, 25);
-  this->players[this->player_id] =  client;
+  this->players[this->player_id] = &client;
   this->player_id++;
   this->team_0 = !this->team_0;
-  // this->select->add(*client);
+  this->select->add(client);
 }
 
 void Server::sendToAll(const char *msg, unsigned int size) {

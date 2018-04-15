@@ -44,11 +44,12 @@ public:
   void startServer();
 
 private:
+  void setupConnection(unsigned int port, sf::IpAddress &addr);
   void sendState();
   double timeToSend();
   sf::TcpSocket *getReadySocket();
   void registerClient(sf::TcpSocket &client);
-  void updateInfos(sf::TcpSocket *client);
+  void updateInfos(sf::TcpSocket &client);
   void sendToAll(const char *msg, unsigned int size);
   void sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size);
 };

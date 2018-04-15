@@ -10,8 +10,8 @@
 
 class Client {
 private:
+  sf::TcpSocket *socket = new sf::TcpSocket();
   sf::Packet packet;
-  sf::TcpSocket *socket;
   sf::IpAddress addr;
   unsigned int port;
 
@@ -21,6 +21,9 @@ public:
   std::pair<int, int> *registerPlayer();
 
   std::istringstream getServerMsg();
+
+private:
+  void setupConnection(std::string addr, unsigned int port);
 };
 
 #endif

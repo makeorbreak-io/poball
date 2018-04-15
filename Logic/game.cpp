@@ -13,7 +13,6 @@ Game::Game()
     }
 
     this->my_id = info->second;
-    std::cout << "WTF?\n";
     this->finished = false;
     b2Vec2 Gravity(0.0f, 0.0f);
     this->world = new b2World(Gravity);
@@ -26,8 +25,7 @@ void Game::update() {
     std::cout << "Starting game!\n";
     sf::RenderWindow window(sf::VideoMode(800, 600, 30), "P@oBall");
     window.setFramerateLimit(60);
-    while (true)
-    {
+    while (true) {
         this->processMovement();
         window.clear(sf::Color::Black);
         this->team1.draw(&window);
