@@ -3,8 +3,9 @@
 
 class Team{
     private:
+        sf::Mutex *mut = new sf::Mutex();
         int identifier;
-        std::unordered_map<int, Duck*> players; //<id,Player>
+        std::unordered_map<int, Duck*> players = std::unordered_map<int, Duck*>(); //<id,Player>
         int goalsScored;
     public:
         Team();

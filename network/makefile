@@ -14,13 +14,14 @@ $(ODIR)/state.o: state.cpp state.h
 	$(CC) -std=c++11 -c state.cpp -o $@
 
 server: $(ODIR)/state.o server.cpp
+	mkdir -p obj
 	$(CC) $(LIBS) -c -o $(ODIR)/$@.o $@.cpp
-	$(CC) $(LIBS) obj/state.o obj/server.o -o $@
+	# $(CC) $(LIBS) obj/state.o obj/server.o -o $@
 
 client: client.cpp
-	$(CC) $(LIBS) -c -o $(ODIR)/client.o $@.cpp
-	$(CC) $(LIBS) -o $@ obj/client.o
+	mkdir -p obj
+	$(CC) $(LIBS) -c -o $(ODIR)/$@.o $@.cpp
+	# $(CC) $(LIBS) -o $@ obj/client.o
 
 clean:
 	rm -rf obj/
-	rm server client
