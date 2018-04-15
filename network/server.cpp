@@ -1,7 +1,7 @@
 #include "server.h"
 
 int main() {
-  Server *server = new Server(8000, "127.0.0.1");
+  Server *server = new Server(8001, "127.0.0.1");
   server->startListening();
 }
 
@@ -19,16 +19,16 @@ Server::Server (int port, std::string addr) {
 
 // <player_id> <player_team> <x_pos> <y_pos>
 void Server::startListening() {
-    sf::TcpSocket client;
+    sf::TcpSocket *client = new sf::TcpSocket();
     this->listener->listen(this->port, this->addr);
 
     while (true) {
-    if (this->listener->accept(client) == sf::Socket::Done) {
-      std::cout << "New conn from " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
+    if (this->listener->accept(*client) == sf::Socket::Done) {
+      std::cout << "New conn from " << client->getRemoteAddress() << ":" << client->getRemotePort() << std::endl;
 
       std::ostringstream reg_msg, new_msg;
       reg_msg << this->player_id << " " << this->team_0 << "\n";
-      this->sendMsg(&client, reg_msg.str().c_str(), reg_msg.str().length());
+      this->sendMsg(client, reg_msg.str().c_str(), reg_msg.str().length());
 
       new_msg << "NEW_PLAYER\n" << this->player_id << " "  << this->team_0 << " 123  321\n";
       this->updateInfos(client);
@@ -86,18 +86,18 @@ void Server::registerClient(sf::TcpSocket &client) {
   new_msg << this->player_id << " "  << this->team_0 << " 500 500";
   this->sendMsg(&client, reg_msg.str().c_str(), new_msg.str().length());
   this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
-  this->updateInfos(client);
+  this->updateInfos(&client);
 }
 
-void Server::updateInfos(sf::TcpSocket &client) {
+void Server::updateInfos(sf::TcpSocket *client) {
   if (this->player_id == 0) { //First player will be host
     this->state.moveBall(150, 150);
   }
   this->state.updatePlayer(player_id, 25, 25);
-  this->players[this->player_id] =  &client;
+  this->players[this->player_id] =  client;
   this->player_id++;
   this->team_0 = !this->team_0;
-  this->select->add(client);
+  // this->select->add(*client);
 }
 
 void Server::sendToAll(const char *msg, unsigned int size) {

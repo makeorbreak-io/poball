@@ -6,8 +6,7 @@ sf::Mutex *Game::mut = new sf::Mutex();
 Game::Game()
 {
     Game::instance = this;
-    this->socket = Client(8000, "127.0.0.1");
-    std::pair<int, int> *info = this->socket.registerPlayer();
+    std::pair<int, int> *info = this->socket->registerPlayer();
     if (info == NULL) {
       std::cout << "Server did not respond\n";
       return;
@@ -44,7 +43,10 @@ void Game::serverListener() {
   std::string msg_type;
 
   while (true) {
-    msg_stream = Game::instance->socket.getServerMsg();
+    msg_stream = Game::instance->socket->getServerMsg();
+    if (!msg_stream.good()) {
+      continue;
+    }
     msg_stream >> msg_type;
 
     if (msg_type.compare("STATE") == 0) {

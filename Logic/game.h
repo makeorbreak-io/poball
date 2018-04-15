@@ -9,7 +9,7 @@ class Game
   private:
     static Game *instance;
     static sf::Mutex *mut;
-    Client socket = Client(8000, "127.0.0.1");
+    Client *socket = new Client(8001, "127.0.0.1");
     Team team1 = Team(0);
     Team team2 = Team(1);
     bool finished;

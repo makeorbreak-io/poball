@@ -1,5 +1,5 @@
 CC=g++
-LIBS=-std=c++11 -lsfml-window -lsfml-network -lsfml-graphics -lsfml-system -lBox2D
+LIBS=-std=c++11 -lsfml-window -lsfml-network -lsfml-graphics -lsfml-system -lBox2D -g
 
 ODIR=obj
 

@@ -48,7 +48,7 @@ private:
   double timeToSend();
   sf::TcpSocket *getReadySocket();
   void registerClient(sf::TcpSocket &client);
-  void updateInfos(sf::TcpSocket &client);
+  void updateInfos(sf::TcpSocket *client);
   void sendToAll(const char *msg, unsigned int size);
   void sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size);
 };
