@@ -1,4 +1,8 @@
 #include "game.h"
+#include <chrono>
+#include <thread>
+
+
 
 Game::Game(){
 
@@ -99,7 +103,7 @@ void Game::update(){
         this->barrierright->draw(this->window);
         //this->window->draw(this->score);
         if(this->checkWinning() != nullptr){
-            std::cout << "Team " << this->checkWinning()->getId() << " WON. \n";
+            this->won(this->checkWinning()->getId());
             return;
         }
 
@@ -153,4 +157,11 @@ void Game::handleReset(){
         this->ball->resetPos();
         this->goalside->setToggleReset();this->goalside2->setToggleReset();
     }
+}
+void Game::won(int id){
+    std::cout << "Team " << id << " WON. \n";
+    auto winscreen = new Barrier(this->world, 390,310, "assets/win.jpg");
+    winscreen->draw(this->window);
+    this->window->display();
+    std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 }

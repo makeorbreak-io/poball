@@ -36,6 +36,7 @@ class Game {
     void resetGoal();
     void processMovement();
     void handleReset();
+    void won(int id);
 
   public:
     Game();
