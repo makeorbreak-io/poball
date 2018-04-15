@@ -1,7 +1,8 @@
 #include "game.h"
 
-Game::Game()
-{
+Game::Game(){
+
+
     b2Vec2 Gravity(0.0f, 0.0f);
     this->world = new b2World(Gravity);
     this->contactListener = new MyContactListener();
@@ -40,29 +41,116 @@ Game::Game()
 
     this->duck = new Duck(this->world, this->sizeX / 6, this->sizeY / 2, "assets/duck1.png");
     this->ball = new Ball(this->world, this->sizeX / 2, this->sizeY / 2, "assets/ball.png");
-    this->goalside = new Goalside(this->world, this->barrierleft->getSprite().getTexture()->getSize().x , this->sizeY / 2, "assets/goalside1.png");
-    this->goalside2 = new Goalside(this->world, this->sizeX - this->barrierleft->getSprite().getTexture()->getSize().x, this->sizeY / 2, "assets/goalside2.png");
+    this->goalside = new Goalside(this->world, this->barrierleft->getSprite().getTexture()->getSize().x , this->sizeY / 2, "assets/goalside1.png", &this->team2);
+    this->goalside2 = new Goalside(this->world, this->sizeX - this->barrierleft->getSprite().getTexture()->getSize().x, this->sizeY / 2, "assets/goalside2.png", &this->team1);
     this->team1.addPlayer(1, this->duck);
+
+    this->window =  new sf::RenderWindow(sf::VideoMode(this->sizeX, this->sizeY, 32), "P@oBall");
+
+    this->window->setFramerateLimit(60);
+
+
+
+sf::Font MyFont;
+if (!MyFont.loadFromFile("DroidSerif.ttf")){
+    std::cout << "FONT NOT LOADED";
 }
 
-void Game::update()
-{
-    sf::RenderWindow window(sf::VideoMode(this->sizeX, this->sizeY, 32), "P@oBall");
-    window.setFramerateLimit(60);
-    while (window.isOpen())
-    {
+
+sf::Text text;
+
+// select the font
+text.setFont(MyFont); // font is a sf::Font
+
+// set the string to display
+text.setString("Score");
+
+text.setPosition(0.4f, 0.4f);
+
+// set the character size
+text.setCharacterSize(24); // in pixels, not points!
+
+// set the text style
+text.setStyle(sf::Text::Bold | sf::Text::Underlined);
+
+this->font = MyFont;
+this->score = text;
+
+
+
+}
+
+void Game::update(){
+
+    while (this->window->isOpen()){
         this->processMovement();
-        window.clear(sf::Color::Black);
-        window.draw(this->background);
-        this->team1.draw(&window);
-        this->ball->draw(&window);
-        this->goalside->draw(&window);
-        this->goalside2->draw(&window);
-        this->barriertop->draw(&window);
-        this->barrierbottom->draw(&window);
-        this->barrierleft->draw(&window);
-        this->barrierright->draw(&window);
-        window.display();
+        this->window->clear(sf::Color::Black);
+        this->window->draw(this->background);
+
+        this->handleReset();
+
+        this->team1.draw(this->window);
+        this->ball->draw(this->window);
+        this->goalside->draw(this->window);
+        this->goalside2->draw(this->window);
+        this->barriertop->draw(this->window);
+        this->barrierbottom->draw(this->window);
+        this->barrierleft->draw(this->window);
+        this->barrierright->draw(this->window);
+        //this->window->draw(this->score);
+        if(this->checkWinning() != nullptr){
+            std::cout << "Team " << this->checkWinning()->getId() << " WON. \n";
+            return;
+        }
+
+        this->window->display();
         this->world->Step(1 / 60.f, 8, 3);
+
+    }
+}
+
+void Game::processMovement() {
+        sf::Keyboard keyboard;
+        if (keyboard.isKeyPressed(sf::Keyboard::Left))
+        {
+            this->duck->move(-5.0, 0);
+        }
+        else if (keyboard.isKeyPressed(sf::Keyboard::Right))
+        {
+            this->duck->move(5.0, 0);
+        }
+        if (keyboard.isKeyPressed(sf::Keyboard::Up))
+        {
+            this->duck->move(0, -5.0);
+        }
+        else if (keyboard.isKeyPressed(sf::Keyboard::Down))
+        {
+            this->duck->move(0, 5.0);
+        }
+        if(keyboard.isKeyPressed(sf::Keyboard::X)){
+            this->ball->shootBall();
+        }
+    }
+
+
+Team * Game::checkWinning(){
+    if(this->team1.getGoalScored() > 3){
+        return &this->team1;
+    }
+    if(this->team2.getGoalScored() > 3){
+        return &this->team1;
+    }
+    return nullptr;
+}
+
+void Game::resetGoal(){
+    std::cout << "Reseting game\n";
+} 
+
+void Game::handleReset(){
+    if(this->goalside->getReset() || this->goalside2->getReset()){
+        this->duck->resetPos();
+        this->ball->resetPos();
+        this->goalside->setToggleReset();this->goalside2->setToggleReset();
     }
 }

@@ -15,6 +15,10 @@ class Team{
         Team(int ident);
         void addPlayer(int id, Duck* player);
         void draw(sf::RenderWindow *window);
+        void resetGoal();
+        void scoreGoal();
+        int getGoalScored();
+        int getId();
 };
 
 #endif

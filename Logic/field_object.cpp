@@ -9,6 +9,7 @@ Field_Object::Field_Object(b2World *world, float x, float y, std::string s)
   this->sprite.setTexture(*this->t);
   this->sprite.setOrigin(this->t->getSize().x/2.0f, this->t->getSize().y/2.0f);
   this->sprite.setPosition(x+this->sprite.getOrigin().x, y+this->sprite.getOrigin().y);
+  this->original_pos = b2Vec2(x / SCALE, y / SCALE);
   this->sprite.rotate(90);
   this->bodyDef.position = b2Vec2(x / SCALE, y / SCALE);
 }
@@ -37,4 +38,10 @@ b2Body *Field_Object::getBody()
 
 sf::Sprite Field_Object::getSprite(){
   return this->sprite;
+}
+
+void Field_Object::resetPos(){
+  std::cout << "Reseting Pos \n";
+  this->body->SetTransform(this->original_pos, body->GetAngle());
+  //this->sprite.setPosition(this->original_pos_x, this->original_pos_x);
 }

@@ -12,6 +12,7 @@ class Field_Object{
     b2BodyDef bodyDef;
     sf::Sprite sprite;
     sf::Texture *t;
+    b2Vec2 original_pos;
   public:
     Field_Object(b2World *world,float x, float y , std::string s); 
     void move(float x, float y);
@@ -21,6 +22,7 @@ class Field_Object{
     virtual std::string getID() = 0;
     b2Body* getBody();
     sf::Sprite getSprite();
+    void resetPos();
 };
 
 #endif

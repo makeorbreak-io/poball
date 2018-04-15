@@ -8,8 +8,9 @@
 #include "colision_callback.h"
 #include <iostream>
 
-class Game
-{
+class MyContactListener;
+class Goalside;
+class Game {
   private:
     Team team1;
     Team team2;
@@ -26,33 +27,21 @@ class Game
     Barrier* barrierleft;
     Barrier* barrierright;
     float sizeX,sizeY;
-    void processMovement()
-    {
-        sf::Keyboard keyboard;
-        if (keyboard.isKeyPressed(sf::Keyboard::Left))
-        {
-            this->duck->move(-5.0, 0);
-        }
-        else if (keyboard.isKeyPressed(sf::Keyboard::Right))
-        {
-            this->duck->move(5.0, 0);
-        }
-        if (keyboard.isKeyPressed(sf::Keyboard::Up))
-        {
-            this->duck->move(0, -5.0);
-        }
-        else if (keyboard.isKeyPressed(sf::Keyboard::Down))
-        {
-            this->duck->move(0, 5.0);
-        }
-        if(keyboard.isKeyPressed(sf::Keyboard::X)){
-            this->ball->shootBall();
-        }
-    }
+    sf::RenderWindow *window;
+    sf::Text score;
+    sf::Font font;
+    
+
+    Team *checkWinning();
+    void resetGoal();
+    void processMovement();
+    void handleReset();
 
   public:
     Game();
     void update();
+
+
 };
 
 #endif
