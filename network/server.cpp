@@ -1,31 +1,11 @@
-#include "state.h"
-#include <string>
-#include <SFML/Network.hpp>
-#include <iostream>
-#include <sstream>
-#include <unordered_map>
-#include <chrono>
+#include "server.h"
 
-typedef std::unordered_map<int, sf::TcpSocket *> playerDB;
+int main() {
+  Server *server = new Server(8001, "127.0.0.1");
+  server->startListening();
+}
 
-class Server
-{
-private:
-  GameState state;
-  const double PERIOD = 0.0033;
-  bool first_player;
-  playerDB players;
-  bool team_0;
-  unsigned int player_id;
-  sf::TcpListener *listener;
-  sf::SocketSelector *select;
-  sf::IpAddress addr;
-  unsigned short port;
-  std::chrono::time_point<std::chrono::_V2::system_clock, std::chrono::duration<long, std::ratio<1, 1000000000>>> prev_time;
-
-public:
-  Server(int port, std::string addr)
-  {
+Server::Server (int port, std::string addr) {
     this->first_player = true;
     this->team_0 = true;
     this->player_id = 0;
@@ -37,35 +17,49 @@ public:
     this->state = GameState();
   }
 
-  // <player_id> <player_team> <x_pos> <y_pos>
-  void startListening()
-  {
-    sf::TcpSocket client;
+// <player_id> <player_team> <x_pos> <y_pos>
+void Server::startListening() {
+    sf::TcpSocket *client = new sf::TcpSocket();
     this->listener->listen(this->port, this->addr);
-    std::cout << "Starting to listen..\n";
-    while (true)
-    {
-      if (this->listener->accept(client) == sf::Socket::Done)
-      {
-        std::cout << "New conn from " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
 
-        std::ostringstream reg_msg, new_msg;
-        reg_msg << this->player_id << " " << this->team_0;
-        this->sendMsg(&client, reg_msg.str().c_str(), reg_msg.str().length());
+    while (true) {
+    if (this->listener->accept(*client) == sf::Socket::Done) {
+      unsigned int port = client->getRemotePort();
+      sf::IpAddress addr = client->getRemoteAddress();
+      std::cout << "New conn from " << addr << ":" << port << std::endl;
 
-        new_msg << this->player_id << " " << this->team_0 << " 123 321";
-        this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
-        this->updateInfos(client);
-      }
+      std::ostringstream reg_msg, new_msg;
+      reg_msg << this->player_id << " " << this->team_0 << " " << addr << "\n";
+      this->sendMsg(client, reg_msg.str().c_str(), reg_msg.str().length());
+      this->setupConnection(port, addr, client);
+
+      new_msg << "NEW_PLAYER\n" << this->player_id << " "  << this->team_0 << " 123  321\n";
+      this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
+      sf::sleep(sf::seconds(3));
+      this->sendMsg(client, "TESTE1", 7);
+    }
+
+
     }
   }
 
-  // Receives <message_type> <player_id> <player_x> <player_y> <ball_x?> <ball_y?>
-  void startServer()
-  {
-    sf::Packet packet;
-    while (this->first_player || !this->players.empty())
-    {
+void Server::setupConnection(unsigned int client_port, sf::IpAddress &client_addr, sf::TcpSocket *client) {
+  sf::TcpSocket socket;
+  sf::Packet pack;
+  client->receive(pack);
+  std::string port = std::string((const char *)pack.getData(), pack.getDataSize());
+
+  if (socket.connect(client_addr, std::stoi(port), sf::seconds(3)) == sf::Socket::Done) {
+    std::cout << "Opened new socket to client\n";
+    this->updateInfos(socket);
+  }
+}
+
+
+// Receives <message_type> <player_id> <player_x> <player_y> <ball_x?><ball_y?>
+void Server::startServer() {
+  sf::Packet packet;
+  while (this->first_player || !this->players.empty()) {
       this->select->wait();
       sf::TcpSocket *socket = this->getReadySocket();
       socket->receive(packet);
@@ -73,85 +67,103 @@ public:
 
       this->sendState();
     }
-  }
+}
 
-private:
-  void sendState()
-  {
-    if (this->timeToSend())
-    {
-      std::string state = this->state.toString();
-      this->sendToAll(state.c_str(), state.length());
+void Server::sendState() {
+  if (this->timeToSend()) {
+    std::string state = this->state.toString();
+    this->sendToAll(state.c_str(), state.length());
+  }
+}
+
+double Server::timeToSend() {
+  auto end = std::chrono::high_resolution_clock::now();
+  auto diff = end - this->prev_time;
+  if (diff.count() >= this->PERIOD) {
+    this->prev_time = end;
+    return true;
+  }
+  return false;
+}
+
+sf::TcpSocket *Server::getReadySocket() {
+  for (auto it = this->players.begin(); it != this->players.end(); it++) {
+    if (this->select->isReady(*it->second)) {
+      return it->second;
     }
   }
+  return NULL;
+}
 
-  double timeToSend()
-  {
-    auto end = std::chrono::high_resolution_clock::now();
-    auto diff = end - this->prev_time;
-    if (diff.count() >= this->PERIOD)
-    {
-      this->prev_time = end;
-      return true;
-    }
-    return false;
+void Server::updateInfos(sf::TcpSocket &client) {
+  if (this->player_id == 0) { //First player will be host
+    this->state.moveBall(150, 150);
   }
+  this->state.updatePlayer(player_id, 25, 25);
+  this->players[this->player_id] = &client;
+  this->player_id++;
+  this->team_0 = !this->team_0;
+  this->select->add(client);
+}
 
-  sf::TcpSocket *getReadySocket()
-  {
-    for (auto it = this->players.begin(); it != this->players.end(); it++)
-    {
-      if (this->select->isReady(*it->second))
-      {
-        return it->second;
-      }
-    }
-    return NULL;
+void Server::sendToAll(const char *msg, unsigned int size) {
+  auto it = this->players.begin();
+  for (auto it = this->players.begin(); it != this->players.end(); it++) {
+    std::cout << "IS NULL? " << (it->second == NULL) << "\n";
+    this->sendMsg(it->second, msg, size);
   }
+}
 
-  void registerClient(sf::TcpSocket &client)
-  {
-    std::cout << "New conn from " << client.getRemoteAddress() << ":" << client.getRemotePort() << std::endl;
-    std::ostringstream reg_msg, new_msg;
-    reg_msg << this->player_id << " " << this->team_0;
-    new_msg << this->player_id << " " << this->team_0 << " 123 321";
-    this->sendMsg(&client, reg_msg.str().c_str(), new_msg.str().length());
-    this->sendToAll(new_msg.str().c_str(), new_msg.str().length());
-    this->updateInfos(client);
-  }
-
-  void updateInfos(sf::TcpSocket &client)
-  {
-    if (this->player_id == 0)
-    { //First player will be host
-      this->state.moveBall(150, 150);
-      this->state.updatePlayer(player_id, 25, 25);
-    }
-    this->players[this->player_id] = &client;
-    this->player_id++;
-    this->team_0 = !this->team_0;
-    this->select->add(client);
-  }
-
-  void sendToAll(const char *msg, const unsigned int size)
-  {
-    auto it = this->players.begin();
-    for (auto it = this->players.begin(); it != this->players.end(); it++)
-    {
-      this->sendMsg(it->second, msg, size);
-    }
-  }
-
-  void sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size)
-  {
+void Server::sendMsg(sf::TcpSocket *socket, const char *msg, unsigned int size) {
     sf::Packet packet = sf::Packet();
+    std::cout << "Sending: '" << msg << "'\n";
     packet.append(msg, size);
-    socket->send(packet);
-  }
-};
+    auto status = socket->send(packet);
+    
+    switch (status) {
+      case sf::Socket::Done: std::cout << "Done\n"; break;
+      case sf::Socket::NotReady: std::cout << "NotReady\n"; break;
+      case sf::Socket::Partial: std::cout << "Partial\n"; break;
+      case sf::Socket::Disconnected: std::cout << "Disconnected\n"; break;
+      case sf::Socket::Error: std::cout << "Error\n"; break;
+    }
+}
 
-int main()
-{
-  Server client = Server(8001, "127.0.0.1");
-  client.startListening();
+
+
+
+GameState::GameState() {
+  this->mutex = new std::mutex();
+  this->players = std::unordered_map<int, int*>();
+}
+
+void GameState::updatePlayer(int player_id, unsigned int x, unsigned int y) {
+  int coordinates[100];
+  coordinates[0] = x;   coordinates[1] = y;
+  this->mutex->lock();
+  this->players[player_id] = coordinates;
+  this->mutex->unlock();
+}
+
+void GameState::moveBall(unsigned int x, unsigned int y) {
+  this->mutex->lock();
+  this->ball[0] = x;  this->ball[1] = y;
+  this->mutex->unlock();
+}
+
+// Returns the game state in the following form, the first line is theball coordinates
+// STATE \n
+// <ball_x_coordinate> <ball_y_coordinate> \n
+// <player1> <x> <y> \n
+// <player2> <x> <y> \n
+std::string GameState::toString() {
+  std::ostringstream stream;
+  stream << "STATE\n";
+  this->mutex->lock();
+  stream << ball[0] << " " << ball[1] << "\n";
+  for (auto it = this->players.begin(); it != this->players.end();it++) {
+    stream << it->first << " " << it->second[0] << " " << it->second[1]<< "\n";
+  }
+  this->mutex->unlock();
+  return stream.str();
 }

@@ -1,8 +1,6 @@
 #include "team.h"
 
-Team::Team(){
-    
-}
+#include <iostream>
 
 Team::Team(int id){
     this->identifier = id;
@@ -10,11 +8,15 @@ Team::Team(int id){
 }
 
 void Team::addPlayer(int id , Duck* player){
+  this->mut->lock();
     this->players.insert(std::make_pair(id,player));
+  this->mut->unlock();
 }
 
 void Team::draw(sf::RenderWindow *window){
-    for (auto it = this->players.begin(); it != this->players.end(); ++it ){
-        it->second->draw(window);
+  this->mut->lock();
+    for (auto it = this->players.begin(); it != this->players.end(); it++ ){
+      it->second->draw(window);
     }
+  this->mut->unlock();
 }
